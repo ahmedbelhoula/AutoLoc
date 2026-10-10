@@ -9,6 +9,9 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+
 @Entity
 @Table(name = "paiement")
 @Getter
@@ -30,4 +33,7 @@ public class Paiement {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ModePaiement modePaiement;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Contrat contrat;
 }

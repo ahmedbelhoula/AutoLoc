@@ -1,0 +1,29 @@
+package tn.esprit.autoloc;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import tn.esprit.autoloc.domain.Contrat;
+import tn.esprit.autoloc.domain.Paiement;
+import tn.esprit.autoloc.domain.ModePaiement;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Component
+public class TestDataLoader implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) {
+        System.out.println("═══════════════════════════════════════════");
+        System.out.println("🧪 TEST DE CHARGEMENT D'UN CONTRAT");
+        System.out.println("═══════════════════════════════════════════");
+
+        Contrat contrat = new Contrat();
+        contrat.setDateSignature(LocalDate.now());
+        contrat.setMontantTotal(new BigDecimal("1500.00"));
+        contrat.setValide(true);
+
+        System.out.println("✅ Contrat créé (sans sauvegarde en base pour l'instant)");
+        System.out.println("═══════════════════════════════════════════");
+    }
+}
