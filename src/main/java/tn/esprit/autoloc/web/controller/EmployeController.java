@@ -1,5 +1,10 @@
 package tn.esprit.autoloc.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,34 +15,51 @@ import tn.esprit.autoloc.service.IEmployeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/employes")
+@RequestMapping("/employes")
 @RequiredArgsConstructor
+@Tag(name = "Employés", description = "Gestion des employés des agences")
 public class EmployeController {
 
     private final IEmployeService employeService;
 
-    // 1. ADD (Ajouter un employé)
-    @PostMapping
-    public ResponseEntity<Employe> add(@RequestBody Employe employe) {
-        Employe createdEmploye = employeService.create(employe);
-        return new ResponseEntity<>(createdEmploye, HttpStatus.CREATED);
-    }
-
-    // 2. GET ALL (Récupérer tous les employés)
     @GetMapping
+    @Operation(summary = "Lister tous les employés", description = "Retourne la liste complète des employés")
+    @ApiResponse(responseCode = "200", description = "Liste des employés récupérée avec succès")
     public ResponseEntity<List<Employe>> getAll() {
         return ResponseEntity.ok(employeService.findAll());
     }
 
-    // 3. GET BY ID (Récupérer un employé par son ID)
     @GetMapping("/{id}")
-    public ResponseEntity<Employe> getById(@PathVariable Long id) {
+    @Operation(summary = "Consulter un employé", description = "Retourne un employé par son identifiant")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Employé trouvé"),
+            @ApiResponse(responseCode = "404", description = "Employé introuvable")
+    })
+    public ResponseEntity<Employe> getById(
+            @Parameter(description = "Identifiant de l'employé à consulter") @PathVariable Long id) {
         return ResponseEntity.ok(employeService.findById(id));
     }
 
-    // 4. DELETE (Supprimer un employé)
+    @PostMapping
+    @Operation(summary = "Créer un employé", description = "Crée un nouvel employé")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Employé créé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides (nom ou prénom vide)")
+    })
+    public ResponseEntity<Employe> create(
+            @Parameter(description = "Données de l'employé à créer") @RequestBody Employe employe) {
+        Employe createdEmploye = employeService.create(employe);
+        return new ResponseEntity<>(createdEmploye, HttpStatus.CREATED);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @Operation(summary = "Supprimer un employé", description = "Supprime un employé par son identifiant")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Employé supprimé avec succès"),
+            @ApiResponse(responseCode = "404", description = "Employé introuvable")
+    })
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "Identifiant de l'employé à supprimer") @PathVariable Long id) {
         employeService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

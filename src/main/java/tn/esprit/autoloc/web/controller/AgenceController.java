@@ -1,5 +1,10 @@
 package tn.esprit.autoloc.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,34 +15,51 @@ import tn.esprit.autoloc.service.IAgenceService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/agences")
+@RequestMapping("/agences") // Pas de "/api" ici, il est géré par application.properties
 @RequiredArgsConstructor
+@Tag(name = "Agences", description = "Gestion des agences de location de véhicules")
 public class AgenceController {
 
     private final IAgenceService agenceService;
 
-    // 1. ADD (Ajouter une agence)
-    @PostMapping
-    public ResponseEntity<Agence> add(@RequestBody Agence agence) {
-        Agence createdAgence = agenceService.create(agence);
-        return new ResponseEntity<>(createdAgence, HttpStatus.CREATED);
-    }
-
-    // 2. GET ALL (Récupérer toutes les agences)
     @GetMapping
+    @Operation(summary = "Lister toutes les agences", description = "Retourne la liste complète des agences")
+    @ApiResponse(responseCode = "200", description = "Liste des agences récupérée avec succès")
     public ResponseEntity<List<Agence>> getAll() {
         return ResponseEntity.ok(agenceService.findAll());
     }
 
-    // 3. GET BY ID (Récupérer une agence par son ID)
     @GetMapping("/{id}")
-    public ResponseEntity<Agence> getById(@PathVariable Long id) {
+    @Operation(summary = "Consulter une agence", description = "Retourne une agence par son identifiant")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Agence trouvée"),
+            @ApiResponse(responseCode = "404", description = "Agence introuvable")
+    })
+    public ResponseEntity<Agence> getById(
+            @Parameter(description = "Identifiant de l'agence à consulter") @PathVariable Long id) {
         return ResponseEntity.ok(agenceService.findById(id));
     }
 
-    // 4. DELETE (Supprimer une agence)
+    @PostMapping
+    @Operation(summary = "Créer une agence", description = "Crée une nouvelle agence")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Agence créée avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides (ex: nom vide)")
+    })
+    public ResponseEntity<Agence> create(
+            @Parameter(description = "Données de l'agence à créer") @RequestBody Agence agence) {
+        Agence createdAgence = agenceService.create(agence);
+        return new ResponseEntity<>(createdAgence, HttpStatus.CREATED);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @Operation(summary = "Supprimer une agence", description = "Supprime une agence par son identifiant")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Agence supprimée avec succès"),
+            @ApiResponse(responseCode = "404", description = "Agence introuvable")
+    })
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "Identifiant de l'agence à supprimer") @PathVariable Long id) {
         agenceService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
